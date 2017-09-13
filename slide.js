@@ -17,7 +17,9 @@ var slider = function(o){
 	this.timer = null;
 	this.speed = 0;
 	this.stay = this.setting.stay || "1000";
+	this.ms = 35;
 	this.current = this.setting.current || 0;
+	this.iTarget = 0;
 	this.auto = this.setting.auto || false;
 	this.slideAfterfn = this.setting.slideAfterfn || null;
 	this.init();
@@ -123,8 +125,16 @@ slider.prototype = {
 	},
 	play: function(index,fn){
 		var that = this;
-		var mLeft = -index * this.width;
-		that.toMove(mLeft);
+		// var mLeft = -index * this.width;
+		// that.toMove(mLeft);
+
+		this.iTarget = -index * this.width;
+        if(this.timer) {
+            clearInterval(this.timer);
+        };
+        this.timer = setInterval(function() {
+            that.toMove(that.iTarget);
+        }, this.ms);
 
 		if(this.showControls){
 			for(var i=0; i < this.number; i++){
@@ -135,11 +145,19 @@ slider.prototype = {
 
 	},
 	toMove: function(s){
-		this.speed = s;
-		this.oUl.style.left = this.speed + "px";
-		if(Math.abs(this.oUl.offsetLeft) - this.oUl.offsetWidth === 0){
-			this.oUl.style.left = 0;
-			this.speed = 0;
-		}
+		// this.speed = s;
+		// this.oUl.style.left = this.speed + "px";
+		// if(Math.abs(this.oUl.offsetLeft) - this.oUl.offsetWidth === 0){
+		// 	this.oUl.style.left = 0;
+		// 	this.speed = 0;
+		// }
+
+		this.oUl.style.left = this.speed + 'px';
+        this.speed += (s - this.oUl.offsetLeft) / 3;
+        if(Math.abs(s - this.oUl.offsetLeft) === 0) {
+            this.oUl.style.left = s + 'px';
+            clearInterval(this.timer);
+            this.timer = null;
+        };
 	}
 }
